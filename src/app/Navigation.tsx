@@ -1,10 +1,47 @@
 // components/Navigation.tsx
 'use client';
-import { useState } from 'react';
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { auth } from './firebaseConfig';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import SignInModal from './components/SignInModal'; // Ensure this path is correct
+import Dash from './dashboard/page';
+
+
+interface DashboardProps {
+  user: User; // Define the expected user prop
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ user }) => {
+  return (
+    <div>
+      <h2>Welcome, {user.displayName || user.email}!</h2>
+      <Dash />
+    </div>
+  );
+};
+
 
 const Navigation = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // State for mobile menu
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log('Current user:', user); // Log the user
+      setUser(user);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleDashboardClick = () => {
+    if (!user) {
+      setModalOpen(true); // Open sign-in modal if user is not authenticated
+    }
+  };
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -55,9 +92,12 @@ const Navigation = () => {
                 <Link href="/problems" className="text-gray-900 hover:scale-105 transition-transform duration-200 ease-in-out px-3 py-2 rounded-md text-sm font-medium">
                   Problems
                 </Link>
-                <Link href="/dashboard" className="text-gray-900 hover:scale-105 transition-transform duration-200 ease-in-out px-3 py-2 rounded-md text-sm font-medium">
+                <button 
+                  onClick={handleDashboardClick} 
+                  className="text-gray-900 hover:scale-105 transition-transform duration-200 ease-in-out px-3 py-2 rounded-md text-sm font-medium">
                   Dashboard
-                </Link>
+                </button>
+                {user ? <Dashboard user={user} /> : <SignInModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} />}
                 <Link href="/contact" className="text-gray-900 hover:scale-105 transition-transform duration-200 ease-in-out px-3 py-2 rounded-md text-sm font-medium">
                   Contact
                 </Link>
@@ -74,12 +114,18 @@ const Navigation = () => {
             <Link href="/" className="text-gray-900 hover:bg-gray-100 block px-3 py-2 rounded-md text-base font-medium">
               Home
             </Link>
-            <Link href="/" className="text-gray-900 hover:bg-gray-100 block px-3 py-2 rounded-md text-base font-medium">
+            <Link href="#pagething" className="text-gray-900 hover:bg-gray-100 block px-3 py-2 rounded-md text-base font-medium">
               About
             </Link>
-            <Link href="/problem" className="text-gray-900 hover:bg-gray-100 block px-3 py-2 rounded-md text-base font-medium">
+            <Link href="/problems" className="text-gray-900 hover:bg-gray-100 block px-3 py-2 rounded-md text-base font-medium">
               Problems
             </Link>
+            <button 
+              onClick={handleDashboardClick} 
+              className="text-gray-900 hover:bg-gray-100 block px-3 py-2 rounded-md text-base font-medium">
+              Dashboard
+            </button>
+            {user ? <Dashboard user={user} /> : <SignInModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} />}
             <Link href="/contact" className="text-gray-900 hover:bg-gray-100 block px-3 py-2 rounded-md text-base font-medium">
               Contact
             </Link>

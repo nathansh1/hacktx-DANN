@@ -44,16 +44,16 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
+    <div className="max-w-4xl mx-auto my-6 p-6 border border-black rounded-lg">
       <h1 className="text-2xl font-bold mb-6">Progress Dashboard</h1>
       <div className="space-y-4">
         {topics.map((topic, index) => (
           <div key={index} className="flex items-center justify-between">
             <span className="text-lg">{topic}</span>
             <div className="relative flex-1 mx-4">
-              <div className="h-2 bg-gray-200 rounded">
+              <div className="h-2 bg-gray-300 rounded">
                 <div
-                  className="h-full bg-blue-600 rounded transition-all duration-500"
+                  className="h-full bg-gray-600 opacity-75 rounded transition-all duration-500"
                   style={{ width: `${Math.random() * 100}%` }} // Placeholder for progress
                 />
               </div>
@@ -63,7 +63,7 @@ const Dashboard = () => {
             {/* Problems Button */}
             <button
               onClick={() => toggleDropdown(topic)}
-              className="ml-4 bg-gray-300 text-black font-semibold py-1 px-3 rounded hover:bg-gray-400 transition duration-300"
+              className="ml-4 border border-black text-black font-semibold py-1 px-3 rounded transition duration-300"
             >
               Problems
             </button>
@@ -86,21 +86,21 @@ const Dashboard = () => {
 
       <button
         onClick={() => setDropdownOpen(null)} // Close all dropdowns
-        className="mt-8 w-full bg-blue-500 text-white font-bold py-2 rounded hover:bg-blue-600 transition duration-300"
+        className="mt-8 w-full border border-black text-black font-semibold py-2 rounded transition duration-300"
       >
         Recommend Next Problems
       </button>
 
       {/* Additional Dropdown for Recommendations */}
       {dropdownOpen && (
-        <div className="mt-4 border rounded-lg p-4 bg-white shadow-lg">
+        <div className="mt-4 border border-black rounded-lg p-4 bg-white shadow-lg">
           <h2 className="font-semibold text-lg mb-2">Recommended Problems</h2>
           <ul className="space-y-2">
             <li className="border-b pb-2">Placeholder Problem 1</li>
             <li className="border-b pb-2">Placeholder Problem 2</li>
             <li className="border-b pb-2">Placeholder Problem 3</li>
           </ul>
-          <button className="mt-4 w-full bg-green-500 text-white font-bold py-2 rounded hover:bg-green-600 transition duration-300">
+          <button className="mt-4 w-full border border-black text-black font-semibold py-2 rounded transition duration-300">
             Try this problem
           </button>
         </div>

@@ -24,10 +24,12 @@ const Problem = () => {
     Topics: "",
     Tests: []
   });
+  
+  const [currentProblemId, setCurrentProblemId] = useState<string>('HashTable1'); // Initial problem ID
 
-  const fetchProblemData = async () => {
+  const fetchProblemData = async (problemId: string) => {
     try {
-      const docRef = doc(db, "problems", "HashTable1");
+      const docRef = doc(db, "problems", problemId);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
@@ -48,8 +50,8 @@ const Problem = () => {
   };
 
   useEffect(() => {
-    fetchProblemData();
-  }, []);
+    fetchProblemData(currentProblemId);
+  }, [currentProblemId]);
 
   const languageModes: { [key: string]: string } = {
     python: "ace/mode/python",
@@ -66,29 +68,38 @@ const Problem = () => {
   useEffect(() => {
     if (editorRef.current) {
       const editor = ace.edit(editorRef.current);
-      editor.setTheme("ace/theme/github");
+      editor.setTheme("ace/theme/midnight");
       editor.session.setMode(languageModes[selectedLanguage]);
-      editor.setValue('print("Hello, World!")', -1);
+      editor.setValue(getInitialCode(selectedLanguage), -1); // Set initial code based on selected language
       editor.container.style.backgroundColor = 'transparent';
       editor.setOptions({
         highlightActiveLine: true,
         highlightGutterLine: true
       });
-
-      const editorElement = editor.container as HTMLElement;
-      const gutterElement = editorElement.getElementsByClassName('ace_gutter')[0] as HTMLElement;
-      if (gutterElement) {
-        gutterElement.style.backgroundColor = 'transparent';
-        gutterElement.style.borderRight = '1px solid transparent';
-      }
     }
   }, [selectedLanguage]);
+
+  const getInitialCode = (language: string): string => {
+    switch (language) {
+      case 'python':
+        return 'print("Hello, World!")';
+      case 'javascript':
+        return 'console.log("Hello, World!");';
+      case 'cpp':
+        return '#include <iostream>\nint main() { std::cout << "Hello, World!" << std::endl; return 0; }';
+      case 'java':
+        return 'public class Main { public static void main(String[] args) { System.out.println("Hello, World!"); } }';
+      default:
+        return '';
+    }
+  };
 
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedLanguage(e.target.value);
     if (editorRef.current) {
       const editor = ace.edit(editorRef.current);
       editor.session.setMode(languageModes[e.target.value]);
+      editor.setValue(getInitialCode(e.target.value), -1); // Reset editor with new language code
     }
   };
 
@@ -112,6 +123,27 @@ const Problem = () => {
     }
   };
 
+  const handleNextProblem = () => {
+    const problemIds = ['HashTable1', 'HashTable2', 'HashTable3', 'Array1', 'Array2', 'Array3']; // Example problem IDs
+    const currentIndex = problemIds.indexOf(currentProblemId);
+    const nextIndex = (currentIndex + 1) % problemIds.length; // Wrap around to the first
+    const nextProblemId = problemIds[nextIndex]; // Get the next problem ID
+
+    setCurrentProblemId(nextProblemId); // Set the next problem ID
+
+    // Clear the output and input fields
+    const outputElement = document.getElementById("output");
+    const editorElement = ace.edit(editorRef.current); // Get the editor instance
+
+    if (outputElement) {
+      outputElement.innerText = ''; // Clear output
+    }
+
+    if (editorElement) {
+      editorElement.setValue('', -1); // Clear the editor input
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -119,7 +151,12 @@ const Problem = () => {
         <div className="p-4 border border-black rounded-md flex flex-col gap-4">
           <div className="flex flex-col p-4 border border-black rounded-md bg-transparent overflow-y-auto max-h-48">
             <h2 className="text-xl font-semibold mb-2">{problemData.Title}</h2>
-            <p className="mb-2">{problemData.Description}</p>
+            {problemData.Description.split("\\n").map((line, index) => {
+              if(line.trim() === '') {
+                return <br key={index} />;
+              }
+              return <p key={index}>{line}</p>
+            })}
             <p className="text-sm text-gray-700 mb-2">{problemData.Difficulty}</p>
             <p className="text-sm text-gray-700 mb-2">{problemData.Topics}</p>
             <h3 className="text-xl font-semibold mt-4">Test Cases</h3>
@@ -139,14 +176,15 @@ const Problem = () => {
               <p className="text-lg">Helper:</p>
             </div>
             <button
+              onClick={handleNextProblem} // Call the next problem handler
               style={{
                   margin: '.1rem',
-                  padding: '0.3rem 20px', // Horizontal padding of 20px, vertical padding of 0.3rem
+                  padding: '0.3rem 20px',
                   fontSize: '1rem',
-                  border: '1px solid black', // Black border
-                  borderRadius: '8px', // Rounded rectangle
+                  border: '1px solid black',
+                  borderRadius: '8px',
                   cursor: 'pointer',
-                  transition: 'transform 0.2s', // Transition effects
+                  transition: 'transform 0.2s',
                 }}>
                 Next Problem
               </button>
@@ -172,7 +210,7 @@ const Problem = () => {
               height: '300px',
               width: '100%',
               border: '1px solid black',
-              backgroundColor: 'transparent'
+              backgroundColor: 'transparent' // Fully transparent background for the editor
             }}
           ></div>
           <button
@@ -185,9 +223,9 @@ const Problem = () => {
           <h3 className="mt-4 text-2xl font-semibold mb-2">Output:</h3>
           <pre
             id="output"
-            className={`border border-black p-2 overflow-scroll max-h-32 ${error ? 'bg-red-100 text-red-800' : 'bg-transparent text-black'} text-xs whitespace-pre-wrap`}
+            className={`border border-black p-2 overflow-scroll max-h-32 bg-transparent`} // Set output box to have a transparent background
           >
-            {output || error}
+            {error ? error : output}
           </pre>
         </div>
       </div>

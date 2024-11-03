@@ -1,11 +1,21 @@
-// components/TwoColumnDescription.tsx
-'use client'
+'use client';
 import { useEffect, useRef, useState } from 'react';
 
 const TwoColumnDescription = () => {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [scrollHeight, setScrollHeight] = useState(0);
-  const [opacity, setOpacity] = useState(0); // New state for opacity
+  const [opacity, setOpacity] = useState(0); // State for opacity
+
+  const programmingWords = [
+    "const", "function", "=>", "return", "if", "else",
+    "{", "}", "class", "let", "useState", "<>", "!==",
+    "import", "export", "async", "await", "Promise",
+    "map", "filter", "reduce", "forEach", "try", "catch",
+    "throw", "axios", "fetch", "API", "JSON", "npm",
+    "yarn", "webpack", "babel", "React", "Vue", "Angular",
+    "CSS", "HTML", "Node.js", "Express", "TypeScript",
+    "Python", "Java", "C++", "Ruby", "Go"
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,8 +28,8 @@ const TwoColumnDescription = () => {
         const newHeight = Math.min(scrollY, maxHeight);
         setScrollHeight(newHeight);
 
-        // Calculate opacity based on scroll position, maxing out at 0.3
-        const newOpacity = Math.min(scrollY / maxHeight, 1) * 0.3;
+        // Calculate opacity based on scroll position, maxing out at 30
+        const newOpacity = Math.min(scrollY / maxHeight, 1) * 30;
         setOpacity(newOpacity);
       }
     };
@@ -40,7 +50,7 @@ const TwoColumnDescription = () => {
             <span
               style={{
                 display: 'block',
-                width: '100%',
+                width: '70%',
                 height: `${scrollHeight}px`, // Height controlled by scroll
                 backgroundColor: 'black',
                 transition: 'height 0.2s ease, opacity 0.2s ease',
@@ -58,11 +68,46 @@ const TwoColumnDescription = () => {
           </p>
         </div>
       </div>
+
+      {/* Right Column with Falling Text Animation */}
       <div className="flex-1 pl-2">
-        <div className="border border-black rounded-lg p-4">
-          <p>Placeholder content goes here...</p>
+        <div className="border border-black rounded-lg p-4 relative min-h-64 overflow-hidden">
+          <div className="absolute inset-0 flex flex-wrap items-start justify-center">
+            {Array.from({ length: 20 }).map((_, index) => (
+              <span
+                key={index}
+                className="falling-word"
+                style={{
+                  fontSize: '2rem',
+                  color: 'black',
+                  position: 'absolute',
+                  top: `${Math.random() * -80}px`, // Start above the visible area
+                  left: `${Math.random() * 110}%`,
+                  animation: `fall ${Math.random() * 3 + 2}s linear infinite`, // Random duration for each word
+                  opacity: 0, // Start with opacity 0
+                  animationDelay: `${Math.random() * 3}s`, // Delay to stagger animations
+                }}
+              >
+                {programmingWords[index % programmingWords.length]}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
+
+      {/* Add falling text keyframes to the global styles */}
+      <style jsx global>{`
+        @keyframes fall {
+          0% {
+            transform: translateY(0);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(100vh); // Move down off-screen
+            opacity: 0; // Fade out
+          }
+        }
+      `}</style>
     </div>
   );
 };

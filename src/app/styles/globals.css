@@ -87,4 +87,18 @@ button:hover {
 
 /* Add any additional styles here */
 
+/* Ensure the Ace editor gutter (line numbers) has a transparent background */
+.ace_gutter {
+  background-color: transparent !important; /* Fully transparent background */
+  border-right: 1px solid transparent; /* Keep this for visibility, change if necessary */
+}
 
+/* Additional styling to ensure text is readable against the background */
+.ace_gutter .ace_line {
+  color: black; /* Change color as needed */
+}
+
+/* Optional: Style for the editor to match the transparent design */
+.ace_editor {
+  background-color: transparent !important; /* Ensure the editor itself is also transparent */
+}
