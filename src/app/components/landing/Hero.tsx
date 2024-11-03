@@ -1,5 +1,6 @@
 // components/Hero.tsx
 'use client'
+import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 
 const Hero = () => {
@@ -33,15 +34,17 @@ const Hero = () => {
         <p className={`hero-text ${scrolling ? 'fade-out' : ''}`}>
           Discover tailored problems to sharpen your coding skills!
         </p>
-        <button className='heroButton' style={{
-            margin: '1rem',
-            padding: '0.3rem 20px', // Horizontal padding of 20px, vertical padding of 0.3rem
-            fontSize: '1rem',
-            border: '2px solid black', // Black border
-            borderRadius: '8px', // Rounded rectangle
-            cursor: 'pointer',
-            transition: 'transform 0.2s', // Transition effects
-          }}>Start Solving Problems</button>
+        <Link href="/problems">
+          <button className='heroButton' style={{
+              margin: '1rem',
+              padding: '0.3rem 20px', // Horizontal padding of 20px, vertical padding of 0.3rem
+              fontSize: '1rem',
+              border: '2px solid black', // Black border
+              borderRadius: '8px', // Rounded rectangle
+              cursor: 'pointer',
+              transition: 'transform 0.2s', // Transition effects
+            }}>Start Solving Problems</button>
+          </Link>
       </div>
     </section>
   );

@@ -15,8 +15,9 @@ const Navigation = () => {
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="relative flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="text-2xl font-bold text-gray-900">BitCode</div>
-
+          <Link href="/">
+            <div className="text-2xl font-bold text-gray-900 hover:scale-105 transition-transform duration-200 ease-in-out">BitCode</div>
+          </Link>
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
             <button
               onClick={toggleMenu}
@@ -53,6 +54,9 @@ const Navigation = () => {
                 </Link>
                 <Link href="/problems" className="text-gray-900 hover:scale-105 transition-transform duration-200 ease-in-out px-3 py-2 rounded-md text-sm font-medium">
                   Problems
+                </Link>
+                <Link href="/dashboard" className="text-gray-900 hover:scale-105 transition-transform duration-200 ease-in-out px-3 py-2 rounded-md text-sm font-medium">
+                  Dashboard
                 </Link>
                 <Link href="/contact" className="text-gray-900 hover:scale-105 transition-transform duration-200 ease-in-out px-3 py-2 rounded-md text-sm font-medium">
                   Contact

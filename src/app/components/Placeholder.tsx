@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'; // Use usePathname instead of use
 import Home from './Home';
 import Contact from '../contact/page';
 import Problem from '../problems/page';
+import Dashboard from '../dashboard/page';
 import { useEffect, useState } from 'react';
 
 const Placeholder = () => {
@@ -21,6 +22,9 @@ const Placeholder = () => {
                 break;
             case '/problems':
                 setComponentToRender(<Problem />);
+                break;
+            case '/dashboard':
+                setComponentToRender(<Dashboard />);
                 break;
             default:
                 setComponentToRender(<Home />); // Default component

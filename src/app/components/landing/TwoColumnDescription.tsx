@@ -4,28 +4,23 @@ import { useEffect, useRef, useState } from 'react';
 
 const TwoColumnDescription = () => {
   const headingRef = useRef<HTMLHeadingElement>(null);
-  const [scrollHeight, setScrollHeight] = useState(1);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [scrollHeight, setScrollHeight] = useState(0);
+  const [opacity, setOpacity] = useState(0); // New state for opacity
 
   useEffect(() => {
     const handleScroll = () => {
       if (headingRef.current) {
         const rect = headingRef.current.getBoundingClientRect();
+        const maxHeight = 10; // Maximum height of the underline
+        const scrollY = Math.max(0, window.scrollY - rect.top); // Scroll position relative to the heading
 
-        // Trigger animation when the heading is in view
-        if (rect.top <= 0 && !isScrolled) {
-          setIsScrolled(true);
-        } else if (rect.top > 0 && isScrolled) {
-          setIsScrolled(false);
-        }
+        // Calculate the height based on scroll position, limited by maxHeight
+        const newHeight = Math.min(scrollY, maxHeight);
+        setScrollHeight(newHeight);
 
-        // Update the height of the black border based on scroll position
-        if (isScrolled) {
-          const maxHeight = headingRef.current.clientHeight;
-          setScrollHeight(Math.min(window.scrollY, maxHeight));
-        } else {
-          setScrollHeight(1); // Reset when heading is not scrolled
-        }
+        // Calculate opacity based on scroll position, maxing out at 0.3
+        const newOpacity = Math.min(scrollY / maxHeight, 1) * 0.3;
+        setOpacity(newOpacity);
       }
     };
 
@@ -33,7 +28,7 @@ const TwoColumnDescription = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [isScrolled]);
+  }, []);
 
   return (
     <div className="flex max-w-7xl mx-auto py-8 justify-between">
@@ -45,14 +40,13 @@ const TwoColumnDescription = () => {
             <span
               style={{
                 display: 'block',
-                content: '""',
                 width: '100%',
-                height: `${scrollHeight}px`,
+                height: `${scrollHeight}px`, // Height controlled by scroll
                 backgroundColor: 'black',
                 transition: 'height 0.2s ease, opacity 0.2s ease',
-                opacity: scrollHeight > 1 ? 1 : 0,
+                opacity: opacity,
                 position: 'absolute',
-                bottom: 0,
+                top: '-5px', // Adjust to position the underline
                 left: 0,
               }}
             />
