@@ -80,7 +80,7 @@ html, body {
   opacity: 0; /* Fade out effect when scrolling */
 }
 
-.heroButton:hover {
+button:hover {
   transform: scale(1.02);
   transition: .1s transform;
 }

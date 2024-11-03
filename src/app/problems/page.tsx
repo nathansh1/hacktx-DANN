@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { db } from "../firebaseConfig"; // Adjust the path as necessary
 import { doc, getDoc } from "firebase/firestore";
 import ace from 'ace-builds/src-noconflict/ace';
+import '../styles/globals.css';
 
 interface TestCase {
   input: string;
@@ -26,7 +27,7 @@ const Problem = () => {
 
   const fetchProblemData = async () => {
     try {
-      const docRef = doc(db, "problems", "HashTable1"); // replace 'problemID' with a dynamic ID if needed
+      const docRef = doc(db, "problems", "HashTable1");
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
@@ -35,8 +36,8 @@ const Problem = () => {
           Title: data.Title,
           Description: data.Description,
           Difficulty: data.Difficulty,
-          Topics: data.Topics.join(", "), // Assuming topics is an array
-          Tests: data.Tests // Assuming testCases is an array of objects
+          Topics: data.Topics.join(", "),
+          Tests: data.Tests
         });
       } else {
         console.log("No such document!");
@@ -59,8 +60,8 @@ const Problem = () => {
 
   const editorRef = useRef<HTMLDivElement>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<string>('python');
-  const [output, setOutput] = useState<string>(''); // State to hold output
-  const [error, setError] = useState<string>(''); // State to hold error messages
+  const [output, setOutput] = useState<string>(''); 
+  const [error, setError] = useState<string>(''); 
 
   useEffect(() => {
     if (editorRef.current) {
@@ -68,13 +69,12 @@ const Problem = () => {
       editor.setTheme("ace/theme/github");
       editor.session.setMode(languageModes[selectedLanguage]);
       editor.setValue('print("Hello, World!")', -1);
-      editor.container.style.backgroundColor = 'transparent'; // Set the main editor background to transparent
+      editor.container.style.backgroundColor = 'transparent';
       editor.setOptions({
         highlightActiveLine: true,
         highlightGutterLine: true
       });
 
-      // Make line numbers background transparent
       const editorElement = editor.container as HTMLElement;
       const gutterElement = editorElement.getElementsByClassName('ace_gutter')[0] as HTMLElement;
       if (gutterElement) {
@@ -105,10 +105,10 @@ const Problem = () => {
     const result = await response.json();
     if (response.ok) {
       setOutput(result.output);
-      setError(''); // Clear any previous errors
+      setError('');
     } else {
       setError(result.error || "An error occurred");
-      setOutput(''); // Clear output on error
+      setOutput('');
     }
   };
 
@@ -117,9 +117,7 @@ const Problem = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* First Column with Top and Bottom Sections */}
         <div className="p-4 border border-black rounded-md flex flex-col gap-4">
-          <div
-            className="flex flex-col p-4 border border-black rounded-md bg-transparent overflow-y-auto max-h-48"
-          >
+          <div className="flex flex-col p-4 border border-black rounded-md bg-transparent overflow-y-auto max-h-48">
             <h2 className="text-xl font-semibold mb-2">{problemData.Title}</h2>
             <p className="mb-2">{problemData.Description}</p>
             <p className="text-sm text-gray-700 mb-2">{problemData.Difficulty}</p>
@@ -134,16 +132,25 @@ const Problem = () => {
               ))}
             </ul>
           </div>
-          <div
-            className = "flex justify-between items center p-4 border-black rounded-md bg-transparent overflow-y-auto max-h-24"> 
-            <p>LLM Output</p>
+
+          {/* Bottom Section with Helper and Next Problem Button */}
+          <div className="flex flex-col gap-2 mt-4 h-full">
+            <div className="flex-1 p-4 border border-black rounded-md bg-transparent text-left overflow-y-auto max-h-32 whitespace-pre-wrap">
+              <p className="text-lg">Helper:</p>
+            </div>
             <button
-                className = "bg-transparent border border-black rounded-md p-2 transition-transform duration-200 hover:scale-105"
-            >
-                New Problem
-            </button>
-           </div>
-           
+              style={{
+                  margin: '.1rem',
+                  padding: '0.3rem 20px', // Horizontal padding of 20px, vertical padding of 0.3rem
+                  fontSize: '1rem',
+                  border: '1px solid black', // Black border
+                  borderRadius: '8px', // Rounded rectangle
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s', // Transition effects
+                }}>
+                Next Problem
+              </button>
+          </div>
         </div>
 
         {/* Second Column with Ace Editor */}
