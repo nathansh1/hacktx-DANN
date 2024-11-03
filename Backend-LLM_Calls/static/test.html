@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Runner</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+    <style>
+        #editor {
+            height: 300px;
+            width: 100%;
+            border: 1px solid #ccc;
+        }
+        #output {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+            height: 150px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Run Your Code</h1>
+
+    <!-- Language Selector -->
+    <label for="language">Select Language:</label>
+    <select id="language">
+        <option value="python">Python</option>
+        <option value="javascript">JavaScript</option>
+        <option value="cpp">C++</option>
+        <option value="java">Java</option>
+    </select>
+
+    <!-- Code Editor -->
+    <div id="editor">print("Hello, World!")</div>
+    <button id="run">Run Code</button>
+
+    <h3>Output:</h3>
+    <pre id="output"></pre>
+
+    <script>
+        // Initialize Ace editor
+        const editor = ace.edit("editor");
+        editor.setTheme("ace/theme/github");
+        editor.session.setMode("ace/mode/python"); // Default to Python
+
+        // Update editor mode based on selected language
+        document.getElementById('language').addEventListener('change', function () {
+            const language = this.value;
+            const modes = {
+                python: "ace/mode/python",
+                javascript: "ace/mode/javascript",
+                cpp: "ace/mode/c_cpp",
+                java: "ace/mode/java"
+            };
+            editor.session.setMode(modes[language]);
+        });
+
+        // Run Code Button Event
+        document.getElementById('run').onclick = async () => {
+            const code = editor.getValue();
+            const language = document.getElementById('language').value;
+
+            // Send POST request to Flask API
+            try {
+                const response = await fetch("http://127.0.0.1:5000/api/submit_code", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ code, language })
+                });
+
+                // Parse the JSON response
+                const result = await response.json();
+
+                // Display the output or error message on the webpage
+                if (result.status === "success") {
+                    document.getElementById('output').textContent = result.output;
+                } else {
+                    document.getElementById('output').textContent = result.error || "An error occurred";
+                }
+            } catch (error) {
+                document.getElementById('output').textContent = "Error connecting to the server.";
+                console.error("Fetch error:", error);
+            }
+        };
+    </script>
+</body>
+</html>
