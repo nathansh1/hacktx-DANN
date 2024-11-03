@@ -18,10 +18,27 @@
             height: 150px;
             overflow: auto;
         }
+        #description {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+            height: auto;
+            overflow: auto;
+        }
     </style>
 </head>
 <body>
     <h1>Run Your Code</h1>
+
+    <!-- Problem Selector -->
+    <label for="problem">Select Problem:</label>
+    <select id="problem">
+        <option value="" disabled selected>Select a problem</option>
+    </select>
+
+    <!-- Problem Description -->
+    <h3>Description:</h3>
+    <div id="description">Select a problem to view its description.</div>
 
     <!-- Language Selector -->
     <label for="language">Select Language:</label>
@@ -44,6 +61,34 @@
         const editor = ace.edit("editor");
         editor.setTheme("ace/theme/github");
         editor.session.setMode("ace/mode/python"); // Default to Python
+
+        // Fetch problem data on page load
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                const response = await fetch("http://127.0.0.1:5000/api/problems");
+                const problems = await response.json();
+
+                // Populate the problem selector dropdown
+                const problemSelect = document.getElementById("problem");
+                problems.forEach(problem => {
+                    const option = document.createElement("option");
+                    option.value = problem.title;
+                    option.textContent = problem.title;
+                    option.dataset.description = problem.description;
+                    option.dataset.code = problem.code;
+                    problemSelect.appendChild(option);
+                });
+
+                // Update the description and code editor when a problem is selected
+                problemSelect.addEventListener("change", function() {
+                    const selectedOption = problemSelect.options[problemSelect.selectedIndex];
+                    document.getElementById("description").textContent = selectedOption.dataset.description;
+                    editor.setValue(selectedOption.dataset.code, -1);
+                });
+            } catch (error) {
+                console.error("Error fetching problems:", error);
+            }
+        });
 
         // Update editor mode based on selected language
         document.getElementById('language').addEventListener('change', function () {

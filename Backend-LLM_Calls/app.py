@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, send_from_directory
 from LLMCall import get_next_challenge, judge_efficiency
 from CodingChallenges import ChallengeManager, CodingChallenges, Difficulty
 import subprocess
+import pandas as pd
 from flask_cors import CORS
 
 
@@ -99,7 +100,24 @@ def execute_code(code, language):
 @app.route("/")
 def index():
     return send_from_directory("static", "test.html")
+@app.route("/api/problems", methods=["GET"])
+def get_problems():
+    # Read the CSV file to retrieve problems
+    df = pd.read_csv("problems.csv")
+    problems = []
 
+    for _, row in df.iterrows():
+        problem = {
+            "title": row["Title"],
+            "description": row["Description"],
+            "code": row["Code"]
+        }
+        problems.append(problem)
+    
+    return jsonify(problems)
+
+if __name__ == "__main__":
+    app.run(debug=True)
 @app.route("/api/submit_code", methods=["POST"])
 def submit_code():
     data = request.get_json()
@@ -111,16 +129,16 @@ def submit_code():
     # Check if the code executed successfully
     if compilation_result["success"]:
         # If successful, proceed with judging efficiency and recommending the next challenge
-        efficiency = judge_efficiency(code)
-        recommended_difficulty = get_next_challenge(Difficulty.MEDIUM, attempts, efficiency, "General")
-        attempts += 1
-        next_challenge = challenge_manager.get_challenge(Difficulty[recommended_difficulty.upper()])
+        #efficiency = judge_efficiency(code)
+        #recommended_difficulty = get_next_challenge(Difficulty.MEDIUM, attempts, efficiency, "General")
+        #attempts += 1
+        #next_challenge = challenge_manager.get_challenge(Difficulty[recommended_difficulty.upper()])
 
         return jsonify({
             "status": "success",
             "message": "Code executed",
-            "output": compilation_result["output"],
-            "next_challenge": next_challenge.props
+            "output": compilation_result["output"]#,
+            #"next_challenge": next_challenge.props
         })
     else:
         # If there was a compilation or runtime error, return an error message
