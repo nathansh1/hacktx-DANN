@@ -29,10 +29,10 @@ const Hero = () => {
     <section className={`hero-section ${scrolling ? 'animate' : ''}`}>
       <div className="hero-content">
         <h1 className={`hero-title ${scrolling ? 'text-emphasized' : ''}`}>
-          Solve LeetCode Problems Faster
+          We Make LeetCode More Beautiful
         </h1>
         <p className={`hero-text ${scrolling ? 'fade-out' : ''}`}>
-          Discover tailored problems to sharpen your coding skills!
+          So that you feel less sucky.
         </p>
         <Link href="/problems">
           <button className='heroButton' style={{

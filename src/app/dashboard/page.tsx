@@ -1,6 +1,8 @@
 // components/Dashboard.tsx
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../firebaseConfig";
 
 const topics = [
   'Array',
@@ -16,95 +18,60 @@ const topics = [
   'Greedy',
 ];
 
-// Define the type for the problems object
-type ProblemsMap = {
-  [key in typeof topics[number]]: string[];
+type CompletionMap = {
+  [key: string]: number; // Map topic names to completion percentage values (0-100)
 };
 
-// Sample problems for each topic
-const problems: ProblemsMap = {
-  Array: ['Array Problem 1', 'Array Problem 2', 'Array Problem 3'],
-  'Two Pointers': ['Two Pointer Problem 1', 'Two Pointer Problem 2'],
-  Sorting: ['Sorting Problem 1', 'Sorting Problem 2', 'Sorting Problem 3'],
-  'Hash Table': ['Hash Table Problem 1', 'Hash Table Problem 2'],
-  'Binary Search': ['Binary Search Problem 1'],
-  'Divide and Conquer': ['Divide and Conquer Problem 1', 'Divide and Conquer Problem 2'],
-  String: ['String Problem 1', 'String Problem 2'],
-  'Sliding Window': ['Sliding Window Problem 1', 'Sliding Window Problem 2'],
-  Matrix: ['Matrix Problem 1'],
-  'Prefix Sum': ['Prefix Sum Problem 1'],
-  Greedy: ['Greedy Problem 1', 'Greedy Problem 2'],
-};
+const Dashboard = ({ username }: { username: string }) => {
+  const [completion, setCompletion] = useState<CompletionMap>({});
 
-const Dashboard = () => {
-  const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
+  useEffect(() => {
+    // Fetch progress data for the specified user
+    const fetchProgressData = async () => {
+      try {
+        const docRef = doc(db, "Progression", username);
+        const docSnap = await getDoc(docRef);
 
-  const toggleDropdown = (topic: string) => {
-    setDropdownOpen(prev => (prev === topic ? null : topic));
-  };
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const completionData = data.Completion || {};
+          setCompletion(completionData);
+        } else {
+          console.log("No document found for the specified user.");
+        }
+      } catch (error) {
+        console.error("Error fetching progress data:", error);
+      }
+    };
+
+    fetchProgressData();
+  }, [username]);
 
   return (
     <div className="max-w-4xl mx-auto my-6 p-6 border border-black rounded-lg">
-      <h1 className="text-2xl font-bold mb-6">Progress Dashboard</h1>
-      <div className="space-y-4">
-        {topics.map((topic, index) => (
-          <div key={index} className="flex items-center justify-between">
-            <span className="text-lg">{topic}</span>
-            <div className="relative flex-1 mx-4">
-              <div className="h-2 bg-gray-300 rounded">
-                <div
-                  className="h-full bg-gray-600 opacity-75 rounded transition-all duration-500"
-                  style={{ width: `${Math.random() * 100}%` }} // Placeholder for progress
-                />
-              </div>
-            </div>
-            <span className="text-sm text-gray-600">{`${Math.round(Math.random() * 100)}%`}</span>
-
-            {/* Problems Button */}
-            <button
-              onClick={() => toggleDropdown(topic)}
-              className="ml-4 border border-black text-black font-semibold py-1 px-3 rounded transition duration-300"
-            >
-              Problems
-            </button>
-            
-            {/* Dropdown for Problems */}
-            {dropdownOpen === topic && (
-              <div className="absolute z-10 mt-2 bg-white border rounded-lg shadow-lg w-48">
-                <ul className="max-h-48 overflow-y-auto">
-                  {problems[topic].map((problem, idx) => (
-                    <li key={idx} className="px-4 py-2 border-b text-sm hover:bg-gray-100">
-                      {problem}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        ))}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Progress Dashboard</h1>
       </div>
 
-      <button
-        onClick={() => setDropdownOpen(null)} // Close all dropdowns
-        className="mt-8 w-full border border-black text-black font-semibold py-2 rounded transition duration-300"
-      >
-        Recommend Next Problems
-      </button>
-
-      {/* Additional Dropdown for Recommendations */}
-      {dropdownOpen && (
-        <div className="mt-4 border border-black rounded-lg p-4 bg-white shadow-lg">
-          <h2 className="font-semibold text-lg mb-2">Recommended Problems</h2>
-          <ul className="space-y-2">
-            <li className="border-b pb-2">Placeholder Problem 1</li>
-            <li className="border-b pb-2">Placeholder Problem 2</li>
-            <li className="border-b pb-2">Placeholder Problem 3</li>
-          </ul>
-          <button className="mt-4 w-full border border-black text-black font-semibold py-2 rounded transition duration-300">
-            Try this problem
-          </button>
-        </div>
-      )}
+      <div className="space-y-4">
+        {topics.map((topic, index) => {
+          const progressValue = completion[topic] ?? 0; // Default to 0 if no data for the topic
+          return (
+            <div key={index} className="flex items-center justify-between">
+              <span className="text-lg">{topic}</span>
+              <div className="relative flex-1 mx-4">
+                <div className="h-2 bg-gray-300 rounded">
+                  <div
+                    className="h-full bg-gray-600 opacity-75 rounded transition-all duration-500"
+                    style={{ width: `${progressValue}%` }}
+                  />
+                </div>
+              </div>
+              <span className="text-sm text-gray-600">{`${progressValue}%`}</span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };
